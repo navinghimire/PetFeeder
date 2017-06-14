@@ -1,37 +1,32 @@
 import cv2
 import numpy as np
 
-camera_port = 1
-ramp_frames = 30
-camera = cv2.VideoCapture(camera_port)
+cap = cv2.VideoCapture(1)
 
-def get_images():
-	retval, im = camera.read()
-	return im
+while(1):
 
-for i in xrange(ramp_frames):
-	temp = get_images()
-aimg = get_images()
-file = "capture.jpg"
-cv2.imwrite(file,aimg)
-del(camera)
-img = cv2.imread('capture.jpg',0)
-img = cv2.medianBlur(img,25)
-cimg = cv2.cvtColor(img,cv2.COLOR_GRAY2BGR)
+    # Take each frame
+    _, frame = cap.read()
 
-circles = cv2.HoughCircles(img,cv2.HOUGH_GRADIENT,2,20,
-                            param1=50,param2=30,minRadius=50,maxRadius=100)
-print circles.size
+    frame = frame[90:380,0:480]
+    # Convert BGR to HSV
+    hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+    
+    # define range of blue color in HSV
+    lower_blue = np.array([0,136,48])
+    upper_blue = np.array([81,234,243])
 
-circles = np.uint16(np.around(circles))
-feeds = 0
-for i in circles[0,:]:
-    # draw the outer circle
-    cv2.circle(cimg,(i[0],i[1]),i[2],(0,255,0),2)
-    # draw the center of the circle
-    cv2.circle(cimg,(i[0],i[1]),2,(0,0,255),3)
-    feeds = feeds + 1
+    # Threshold the HSV image to get only blue colors
+    mask = cv2.inRange(hsv, lower_blue, upper_blue)
 
-cv2.imshow('detected circles ' + str(feeds),cimg)
-cv2.waitKey(0)
+    # Bitwise-AND mask and original image
+    res = cv2.bitwise_and(frame,frame, mask= mask)
+
+    cv2.imshow('frame',frame)
+    cv2.imshow('mask',mask)
+    cv2.imshow('res',res)
+    k = cv2.waitKey(5) & 0xFF
+    if k == 27:
+        break
+
 cv2.destroyAllWindows()
