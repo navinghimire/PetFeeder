@@ -1,2 +1,2 @@
 #!/bin/bash
-sudo fswebcam "image.jpg"
+sudo fswebcam "imagevip.jpg"
