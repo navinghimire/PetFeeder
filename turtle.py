@@ -49,10 +49,10 @@ try:
 		mydate = time.time()
 		path = '/var/www/html/wp-content/images/'
 		file = 	'image_'+ str(mydate) + '_' + str(i)+'.jpg'
-		call(['fswebcam','-r','1280x720',path+file])
-		call(['scp','-i','/home/pi/wordpress.pem',path+file,'ubuntu@ec2-34-227-200-184.compute-1.amazonaws.com:/home/ubuntu/images/'])			
+		call(['fswebcam',path+file])
+		call(['scp','-i','/home/pi/wordpress.pem',path+file,'ubuntu@ec2-34-227-200-184.compute-1.amazonaws.com:/home/ubuntu/images/image'+str(i)+'.jpg'])			
 		#call(['vipscripts.sh'])
-		call(['ssh','-i','/home/pi/wordpress.pem','ubuntu@ec2-34-227-200-184.compute-1.amazonaws.com', 'python', '/home/ubuntu/PetFeeder/countFeed_edgeDetection.py', '/home/ubuntu/images/'+file])
+		call(['ssh','-i','/home/pi/wordpress.pem','ubuntu@ec2-34-227-200-184.compute-1.amazonaws.com', 'python', '/home/ubuntu/PetFeeder/countFeed_edgeDetection.py', '/home/ubuntu/images/image'+str(i)+'.jpg'])
 
 
 
