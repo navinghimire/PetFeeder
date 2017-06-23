@@ -1,14 +1,14 @@
 import cv2
 import numpy as np
 
-cap = cv2.VideoCapture(1)
+#cap = cv2.VideoCapture(0)
 
 while(1):
 
 	# Take each frame
 	#frame=cv2.imread('testimage1.jpg')
-	_, frame = cap.read()
-
+#	_, frame = cap.read()
+	frame = imread("testimage1.jpg")
 	#frame = frame[90:380,0:480]
 	# Convert BGR to HSV
 	hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
