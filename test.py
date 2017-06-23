@@ -4,35 +4,20 @@ print "Location:http://10.0.0.71\r\n"
 
 import RPi.GPIO as GPIO
 import time
-#from cv2 import *
 
-#cap = cv2.VideoCapture(0)
 
 
 
 
 LED_PIN=12
-
-OUTPUT_PIN = 11
-START = 2.0
-END = 11.5
-MID = 3.5
-NUMBER_OF_SHAKE = 2 
-feed = 2
 GPIO.setmode(GPIO.BOARD)
-
-GPIO.setup(OUTPUT_PIN, GPIO.OUT)
 GPIO.setup(LED_PIN,GPIO.OUT)
-
-pwm = GPIO.PWM(OUTPUT_PIN, 50)
-pwm.start(START)
 try:
-	pwm.ChangeDutyCycle(START)
-	time.sleep(1)
-	pwm.ChangeDutyCycle(MID)
-	time.sleep(2)
-
+	while True:
+		GPIO.output(LED_PIN,GPIO.HIGH)
+		time.sleep(1)
+		GPIO.output(LED_PIN,GPIO.LOW)
+		time.sleep(1)
 except KeyboardInterrupt:
-	pwm.stop()
 	GPIO.cleanup()
 

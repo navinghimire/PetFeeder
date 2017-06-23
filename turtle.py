@@ -1,48 +1,14 @@
 #!/usr/bin/env python
-#print "Location:http://10.0.0.239\r\n"
-print 'Content-type: text/html\n\n'
+print "Location:http://ghimire.xyz/petfeeder\r\n"
+#print 'Content-type: text/html\n\n'
 import datetime
 import RPi.GPIO as GPIO
 import time
 
 from subprocess import call
-import cv2
 
-print "Setting up environment..."
+print "Setting up environment\n"
 LED_PIN=12
-
-# Camera 0 is the integrated web cam on my netbook
-camera_port = 0
- 
-#Number of frames to throw away while the camera adjusts to light levels
-ramp_frames = 30
- 
-# Now we can initialize the camera capture object with the cv2.VideoCapture class.
-# All it needs is the index to a camera port.
-camera = cv2.VideoCapture(camera_port)
- 
-# Captures a single image from the camera and returns it in PIL format
-def get_image():
- # read is the easiest way to get a full image out of a VideoCapture object.
-	retval, im = camera.read()
-	return im
- 
-# Ramp the camera - these frames will be discarded and are only used to allow v4l2
-# to adjust light levels, if necessary
-for i in xrange(ramp_frames):
-	temp = get_image()
-print("Taking image...")
-# Take the actual image we want to keep
-camera_capture = get_image()
-file = "/home/pi/test_image.png"
-# A nice feature of the imwrite method is that it will automatically choose the
-# correct format based on the file extension you provide. Convenient!
-cv2.imwrite(file, camera_capture)
- 
-# You'll want to release the camera, otherwise you won't be able to create a new
-# capture object until your script exits
-del(camera)
-
 
 
 OUTPUT_PIN = 11
@@ -63,7 +29,7 @@ try:
 
 	for i in range(0,feed):
 		pwm.ChangeDutyCycle(START)
-		print "Clearing feed"
+		print "Clearing feed\n"
 		time.sleep(1)
 		
 		#shake
@@ -77,15 +43,15 @@ try:
 		
 		
 		pwm.ChangeDutyCycle(7.5)
-		print "Turning on LED"
+		print "Turning on LED\n"
 		time.sleep(1)
 		GPIO.output(LED_PIN,GPIO.LOW)
-		print "Taking snapshot"
-		
-		
+		print "Taking snapshot\n"
 		mydate = time.time()
-		call(['sudo','fswebcam','/var/www/html/image123.jpg'])
-		
+		path = '/var/www/html/wp-content/images/'
+		file = 	'image_'+ str(mydate) + '_' + str(i)+'.jpg'
+		call(['fswebcam','-r','1280x720',path+file])
+#		call(['scp','-i','/home/pi/.ssh/mykey',path+file,'ghimirenavin@35.184.166.128:/home/ghimirenavin/turtlefeeder_images'])			
 		#call(['vipscripts.sh'])
 
 
@@ -93,14 +59,14 @@ try:
 
 		time.sleep(2)
 
-		print "Turing off LED"
+		print "Turing off LED\n"
 		time.sleep(1)
 		GPIO.output(LED_PIN,GPIO.HIGH)
 		
-		print "Feeding..."
+		print "Feeding\n"
 		pwm.ChangeDutyCycle(END)
 		time.sleep(1)
-		print "Resetting feed..."
+		print "Resetting feed\n"
 		pwm.ChangeDutyCycle(START)
 		time.sleep(1)
 
