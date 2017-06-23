@@ -4,7 +4,7 @@ print "Location:http://ghimire.xyz/petfeeder\r\n"
 import datetime
 import RPi.GPIO as GPIO
 import time
-
+import countFeed_edgeDetection
 from subprocess import call
 
 print "Setting up environment\n"

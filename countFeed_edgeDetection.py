@@ -2,13 +2,12 @@
 import cv2
 import numpy as np;
 
-cam = cv2.VideoCapture(4)
 
 BLOB_SIZE_MIN = 2000
 BLOB_SIZE_MAX = 4000
-while (True):
-		_,im = cam.read()
-		
+
+def countFeed(src):
+		im = cv2.imread(src)
 		# Crop a Region 
 		im = im[90:380,0:480]
 		imw = im
@@ -33,7 +32,7 @@ while (True):
 		# Dilate image
 		dilate = cv2.dilate(erode, None, iterations = 5)
 		#cv2.imshow('dilated',dilate)
-		
+
 		# Get Contours
 		contours,im2 = cv2.findContours(dilate,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
 
@@ -50,10 +49,4 @@ while (True):
 				total = total
 					
 		cv2.imshow('contours',imw)
-		print total 
-		k = cv2.waitKey(5) & 0xFF 
-		if k == 27: 
-				break 
- 
-cv2.destroyAllWindows() 
-
+		return total
