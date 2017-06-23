@@ -4,7 +4,6 @@ print "Location:http://ghimire.xyz/petfeeder\r\n"
 import datetime
 import RPi.GPIO as GPIO
 import time
-import countFeed_edgeDetection
 from subprocess import call
 
 print "Setting up environment\n"
@@ -51,9 +50,9 @@ try:
 		path = '/var/www/html/wp-content/images/'
 		file = 	'image_'+ str(mydate) + '_' + str(i)+'.jpg'
 		call(['fswebcam','-r','1280x720',path+file])
-#		call(['scp','-i','/home/pi/.ssh/mykey',path+file,'ghimirenavin@35.184.166.128:/home/ghimirenavin/turtlefeeder_images'])			
+		call(['scp','-i','/home/pi/wordpress.pem',path+file,'ubuntu@ec2-34-227-200-184.compute-1.amazonaws.com:/home/ubuntu/images/'])			
 		#call(['vipscripts.sh'])
-
+		call(['ssh','-i','/home/pi/wordpress.pem','ubuntu@ec2-34-227-200-184.compute-1.amazonaws.com', 'python', '/home/ubuntu/PetFeeder/countFeed_edgeDetection.py', '/home/ubuntu/images/'+file])
 
 
 
