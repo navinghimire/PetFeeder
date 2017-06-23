@@ -3,7 +3,7 @@ import numpy as np
 #optional argument
 def nothing(x):
     pass
-cap = cv2.VideoCapture(1)
+cap = cv2.VideoCapture(3)
 cv2.namedWindow('image')
 
 #easy assigments
