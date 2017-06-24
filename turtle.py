@@ -1,12 +1,14 @@
 #!/usr/bin/env python
-print "Location:http://ghimire.xyz/petfeeder\r\n"
+print "Location: http://10.0.0.239/index.php/sample-page/\n"
 #print 'Content-type: text/html\n\n'
 import datetime
 import RPi.GPIO as GPIO
 import time
+from time import localtime, strftime
 from subprocess import call
+from subprocess import Popen, PIPE
 
-print "Setting up environment\n"
+f = open('/home/pi/PetFeeder/database','a')
 LED_PIN=12
 
 
@@ -16,6 +18,7 @@ END = 11.5
 MID = 3.5
 NUMBER_OF_SHAKE = 2 
 feed = 2
+GPIO.setwarnings(False)
 GPIO.setmode(GPIO.BOARD)
 
 GPIO.setup(OUTPUT_PIN, GPIO.OUT)
@@ -23,12 +26,13 @@ GPIO.setup(LED_PIN,GPIO.OUT)
 
 pwm = GPIO.PWM(OUTPUT_PIN, 50)
 pwm.start(MID)
-
+i = 0
+feedCalorie = 10
+totalCalorieCount = 0
 try:
 
-	for i in range(0,feed):
+	while (True):
 		pwm.ChangeDutyCycle(START)
-		print "Clearing feed\n"
 		time.sleep(1)
 		
 		#shake
@@ -42,34 +46,44 @@ try:
 		
 		
 		pwm.ChangeDutyCycle(7.5)
-		print "Turning on LED\n"
 		time.sleep(1)
 		GPIO.output(LED_PIN,GPIO.LOW)
-		print "Taking snapshot\n"
+
 		mydate = time.time()
-		path = '/var/www/html/wp-content/images/'
+		path = '/var/www/html/wp-content/uploads/images/'
 		file = 	'image_'+ str(mydate) + '_' + str(i)+'.jpg'
-		call(['fswebcam',path+file])
+#		call(['modprobe','uvcvideo'])
+		call(['fswebcam','-d','/dev/video0','-q',path+file,'--no-banner'])
+		time.sleep(4)
+		call(['chmod','+x',path+file])
 		call(['scp','-i','/home/pi/wordpress.pem',path+file,'ubuntu@ec2-34-227-200-184.compute-1.amazonaws.com:/home/ubuntu/images/image'+str(i)+'.jpg'])			
 		#call(['vipscripts.sh'])
-		call(['ssh','-i','/home/pi/wordpress.pem','ubuntu@ec2-34-227-200-184.compute-1.amazonaws.com', 'python', '/home/ubuntu/PetFeeder/countFeed_edgeDetection.py', '/home/ubuntu/images/image'+str(i)+'.jpg'])
+		p = Popen(['ssh','-i','/home/pi/wordpress.pem','ubuntu@ec2-34-227-200-184.compute-1.amazonaws.com', 'python', '/home/ubuntu/PetFeeder/countFeed_edgeDetection.py', '/home/ubuntu/images/image'+str(i)+'.jpg'],stdin=PIPE,stdout=PIPE,stderr=PIPE)
+		output,err = p.communicate() 
+		#print int(output) 
 
+		currenttime = strftime("%Y-%m-%d %H:%M:%S",localtime())
+		f.write(currenttime+' '+str(output)) 
+		totalCalorieCount = totalCalorieCount + int(output)
 
-
-		time.sleep(2)
-
-		print "Turing off LED\n"
 		time.sleep(1)
 		GPIO.output(LED_PIN,GPIO.HIGH)
-		
-		print "Feeding\n"
 		pwm.ChangeDutyCycle(END)
 		time.sleep(1)
-		print "Resetting feed\n"
 		pwm.ChangeDutyCycle(START)
 		time.sleep(1)
 
+		#if enough is feed, break
+
+		if totalCalorieCount >= feedCalorie:
+			break
+		i = i + 1
+	f.close()
+	pwm.stop()
+	GPIO.cleanup(12)
+	GPIO.cleanup(11)
+
 except KeyboardInterrupt:
 	pwm.stop()
-	GPIO.cleanup()
-
+	GPIO.cleanup(12)
+	GPIO.cleanup(11)

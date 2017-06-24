@@ -2,6 +2,7 @@
 import cv2
 import numpy as np;
 import sys
+print "Content-type: text/html\n\n"
 src = sys.argv[1]
 
 BLOB_SIZE_MIN = 2000
